@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Rasio Matematika</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+
+        .font-heading {
+            font-family: 'Fredoka', cursive;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-card-dark {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-bounce {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-bounce:hover {
+            transform: translateY(-4px) scale(1.02);
+        }
+        .btn-bounce:active {
+            transform: translateY(2px) scale(0.98);
+        }
+
+        /* Animation Keyframes */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 3s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .shake-animation {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes confettiDrop {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            pointer-events: none;
+            z-index: 100;
+            animation: confettiDrop 3s linear forwards;
+        }
+
+        /* Custom Input Styling */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between p-4 sm:p-6 md:p-8 select-none">
+
+    <!-- Top Header -->
+    <header class="max-w-5xl mx-auto w-full flex justify-between items-center mb-6 glass-card p-4 rounded-2xl shadow-xl">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-yellow-400 to-amber-500 flex items-center justify-center text-2xl text-slate-900 font-bold shadow-lg">
+                <i class="fa-solid fa-shapes"></i>
+            </div>
+            <div>
+                <h1 class="font-heading text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400">
+                    Petualangan Rasio
+                </h1>
+                <p class="text-xs text-slate-300">Konsep Membandingkan Benda</p>
+            </div>
+        </div>
+
+        <div id="header-group-info" class="hidden items-center gap-4">
+            <div class="bg-indigo-950/80 px-4 py-2 rounded-xl border border-indigo-500/30 text-right">
+                <p class="text-xs text-indigo-300">Kelompok:</p>
+                <p id="display-group-name" class="font-bold text-amber-300 text-sm sm:text-base font-heading">---</p>
+            </div>
+            <div class="bg-purple-950/80 px-4 py-2 rounded-xl border border-purple-500/30 text-right">
+                <p class="text-xs text-purple-300">Skor:</p>
+                <p id="display-score" class="font-bold text-emerald-400 text-sm sm:text-base font-heading">0</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-5xl mx-auto w-full flex-grow flex flex-col justify-center items-center relative">
+
+        <!-- SCREEN 1: REGISTRATION & START -->
+        <section id="screen-welcome" class="w-full max-w-xl glass-card p-6 sm:p-8 rounded-3xl shadow-2xl text-center pulse-glow transition-all duration-500">
+            <div class="inline-block p-4 rounded-full bg-gradient-to-tr from-purple-500/30 to-pink-500/30 mb-4 border border-purple-400/40">
+                <i class="fa-solid fa-compass-drafting text-5xl text-yellow-300"></i>
+            </div>
+            <h2 class="font-heading text-3xl sm:text-4xl font-bold mb-2 text-white">Selamat Datang, Petualang!</h2>
+            <p class="text-slate-300 mb-6 text-sm sm:text-base">Siapkan tim kelompokmu untuk menyelesaikan 5 tantangan membandingkan benda!</p>
+
+            <form id="form-registration" onsubmit="startGame(event)" class="space-y-4 text-left">
+                <div>
+                    <label for="group-name" class="block text-sm font-semibold text-slate-200 mb-1">
+                        <i class="fa-solid fa-users text-purple-400 mr-2"></i>Nama Kelompok / Tim:
+                    </label>
+                    <input type="text" id="group-name" required placeholder="Contoh: Kelompok Garuda 1" 
+                        class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-200 mb-1">
+                        <i class="fa-solid fa-user-pen text-pink-400 mr-2"></i>Nama Anggota Kelompok:
+                    </label>
+                    <div id="members-container" class="space-y-2">
+                        <input type="text" class="member-input w-full px-4 py-2.5 rounded-xl bg-slate-900/60 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="Anggota 1" required>
+                        <input type="text" class="member-input w-full px-4 py-2.5 rounded-xl bg-slate-900/60 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="Anggota 2" required>
+                    </div>
+                    <button type="button" onclick="addMemberInput()" class="mt-2 text-xs text-yellow-400 hover:text-yellow-300 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-plus-circle"></i> Tambah Anggota Lagi
+                    </button>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="btn-bounce w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-slate-950 font-heading font-bold text-lg sm:text-xl shadow-lg shadow-orange-500/30 flex items-center justify-center gap-3 cursor-pointer">
+                        <span>MULAI BERPETUALANG</span>
+                        <i class="fa-solid fa-rocket"></i>
+                    </button>
+                </div>
+            </form>
+        </section>
+        <!-- SCREEN 2: GAMEPLAY (CHALLENGES 1 - 5) -->
+        <section id="screen-game" class="hidden w-full max-w-4xl flex-col items-center">
+            
+            <!-- Level Indicator Bar -->
+            <div class="w-full flex justify-between items-center mb-6 px-2">
+                <div class="flex items-center gap-2">
+                    <span id="level-badge" class="px-3 py-1 bg-yellow-400 text-slate-950 font-heading font-bold rounded-full text-xs sm:text-sm">
+                        TANTANGAN 1 DARI 5
+                    </span>
+                    <h3 id="level-title" class="text-slate-300 text-sm sm:text-base font-semibold">Membandingkan Jumlah Benda</h3>
+                </div>
+                <!-- Progress Dots -->
+                <div class="flex gap-2" id="progress-dots">
+                    <div class="w-3 h-3 rounded-full bg-slate-700 border border-slate-500" id="dot-0"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-700 border border-slate-500" id="dot-1"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-700 border border-slate-500" id="dot-2"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-700 border border-slate-500" id="dot-3"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-700 border border-slate-500" id="dot-4"></div>
+                </div>
+            </div>
+
+            <!-- Main Question Card -->
+            <div id="challenge-card" class="w-full glass-card p-6 sm:p-8 rounded-3xl shadow-2xl relative overflow-hidden transition-all duration-300">
+                
+                <!-- Story / Scenario Box -->
+                <div class="bg-slate-900/70 p-4 sm:p-5 rounded-2xl border border-slate-700/80 mb-6">
+                    <p id="challenge-instruction" class="text-base sm:text-lg text-slate-100 font-medium leading-relaxed">
+                        Perhatikan benda-benda di bawah ini!
+                    </p>
+                </div>
+
+                <!-- Visual Comparison Container -->
+                <div id="visual-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8">
+                    <!-- Dynamic Items Inserted via JS -->
+                </div>
+
+                <!-- Interactive Question & Input Area -->
+                <div class="bg-indigo-950/60 p-5 rounded-2xl border border-indigo-500/30 flex flex-col items-center">
+                    <p id="question-text" class="text-center text-lg sm:text-xl font-heading font-bold text-yellow-300 mb-4">
+                        Berapakah rasio benda A terhadap benda B?
+                    </p>
+
+                    <!-- Type 1: Matching Game UI (Mencocokkan Gambar dengan Pasangan Rasio) -->
+                    <div id="matching-wrapper" class="hidden w-full space-y-3 mb-4">
+                        <!-- Matching cards populated dynamically -->
+                    </div>
+
+                    <!-- Type 2: Ratio Input Form (Menjawab Pertanyaan Isian) -->
+                    <div id="ratio-input-wrapper" class="flex items-center justify-center gap-3 sm:gap-4 mb-4">
+                        <div class="flex flex-col items-center">
+                            <span id="label-a" class="text-xs text-indigo-300 mb-1 font-semibold">Benda A</span>
+                            <input type="number" id="input-a" min="1" max="99" class="w-16 sm:w-20 h-16 text-center text-2xl font-heading font-bold bg-slate-900 border-2 border-indigo-400 rounded-xl text-yellow-400 focus:outline-none focus:border-yellow-400">
+                        </div>
+
+                        <span class="text-3xl font-heading font-bold text-white mt-5">:</span>
+
+                        <div class="flex flex-col items-center">
+                            <span id="label-b" class="text-xs text-indigo-300 mb-1 font-semibold">Benda B</span>
+                            <input type="number" id="input-b" min="1" max="99" class="w-16 sm:w-20 h-16 text-center text-2xl font-heading font-bold bg-slate-900 border-2 border-indigo-400 rounded-xl text-yellow-400 focus:outline-none focus:border-yellow-400">
+                        </div>
+                    </div>
+
+                    <!-- Type 3: Multiple Choice / Memilih Pernyataan yang Tepat -->
+                    <div id="choice-wrapper" class="hidden grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl mb-4">
+                        <!-- Choices added dynamically -->
+                    </div>
+
+                    <!-- Action Button -->
+                    <button onclick="submitAnswer()" id="btn-submit" class="btn-bounce px-8 py-3.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-heading font-bold text-lg shadow-lg shadow-teal-500/30 flex items-center gap-2">
+                        <span>PERIKSA JAWABAN</span>
+                        <i class="fa-solid fa-circle-check"></i>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SCREEN 3: END / RESULTS -->
+        <section id="screen-result" class="hidden w-full max-w-2xl glass-card p-8 rounded-3xl shadow-2xl text-center">
+            <div class="inline-block p-5 rounded-full bg-gradient-to-tr from-yellow-400 to-amber-500 mb-4 shadow-lg text-slate-950">
+                <i class="fa-solid fa-trophy text-6xl"></i>
+            </div>
+            
+            <h2 class="font-heading text-3xl sm:text-4xl font-bold text-white mb-2">Petualangan Selesai!</h2>
+            <p class="text-slate-300 mb-6">Hebat sekali! Tim kamu telah menyelesaikan seluruh 5 tantangan rasio.</p>
+
+            <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-700 text-left space-y-4 mb-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <span class="text-slate-400 text-sm">Nama Kelompok:</span>
+                    <span id="final-group-name" class="font-heading font-bold text-yellow-300 text-lg">---</span>
+                </div>
+                <div class="flex justify-between items-start border-b border-slate-800 pb-3">
+                    <span class="text-slate-400 text-sm">Anggota Tim:</span>
+                    <span id="final-members" class="font-semibold text-slate-200 text-sm text-right">---</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400 text-sm">Total Skor Akhir:</span>
+                    <span id="final-score" class="font-heading font-bold text-emerald-400 text-3xl">100 / 100</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button onclick="resetGame()" class="btn-bounce flex-1 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-heading font-semibold text-base flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Main Lagi
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Modal Feedback System (Replaces Alert) -->
+    <div id="feedback-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+        <div id="feedback-card" class="glass-card-dark max-w-md w-full p-6 sm:p-8 rounded-3xl text-center transform scale-90 transition-transform duration-300 border-2">
+            <div id="feedback-icon-container" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-xl">
+                <!-- Icon via JS -->
+            </div>
+            <h3 id="feedback-title" class="font-heading text-2xl font-bold mb-2">---</h3>
+            <p id="feedback-message" class="text-slate-300 mb-6 text-sm sm:text-base leading-relaxed">---</p>
+            <button onclick="closeModal()" id="feedback-btn" class="btn-bounce w-full py-3.5 rounded-xl font-heading font-bold text-slate-950 text-base shadow-lg">
+                Lanjutkan <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer Footer -->
+    <footer class="max-w-5xl mx-auto w-full text-center mt-6 text-xs text-slate-400">
+        <p>Game Edukasi Matematika Interaktif - Membandingkan Benda & Konsep Rasio</p>
+    </footer>
+
+    <!-- JavaScript Game Logic & Web Audio Synthesizer -->
+    <script>
+        /* ===================================================
+           1. WEB AUDIO SYNTHESIZER (Tepuk Tangan & Boom Sound)
+           =================================================== */
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Sound 1: Tepuk Tangan & Sorak (Success Sound)
+        function playClapSound() {
+            initAudio();
+            const now = audioCtx.currentTime;
+            
+            // Generate Noise burst for applause effect
+            const bufferSize = audioCtx.sampleRate * 1.5; // 1.5 detik
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            // Create noise node
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            // Filter for applause noise
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 1200;
+            filter.Q.value = 1.0;
+
+            // Envelope
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.01, now);
+            gain.gain.exponentialRampToValueAtTime(0.4, now + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 1.4);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start(now);
+            noise.stop(now + 1.5);
+
+            // Add Arpeggio Musical Chime for Celebration
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+            notes.forEach((freq, idx) => {
+                const osc = audioCtx.createOscillator();
+                const noteGain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.value = freq;
+                
+                const noteTime = now + (idx * 0.1);
+                noteGain.gain.setValueAtTime(0, noteTime);
+                noteGain.gain.linearRampToValueAtTime(0.2, noteTime + 0.05);
+                noteGain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.5);
+
+                osc.connect(noteGain);
+                noteGain.connect(audioCtx.destination);
+
+                osc.start(noteTime);
+                osc.stop(noteTime + 0.5);
+            });
+        }
+
+        // Sound 2: Ledakan / BOOM (Wrong Sound)
+        function playBoomSound() {
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            // Low frequency oscillator drop
+            const osc = audioCtx.createOscillator();
+            const oscGain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(30, now + 0.6);
+
+            oscGain.gain.setValueAtTime(0.6, now);
+            oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+
+            osc.connect(oscGain);
+            oscGain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.6);
+
+            // Explosion Noise Burst
+            const bufferSize = audioCtx.sampleRate * 0.6;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.1));
+            }
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'lowpass';
+            noiseFilter.frequency.value = 400;
+
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.7, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(audioCtx.destination);
+
+            noise.start(now);
+            noise.stop(now + 0.6);
+        }
+
+        /* ===================================================
+           2. GAME DATA & STATE MANAGEMENT
+           =================================================== */
+        let groupData = {
+            name: '',
+            members: [],
+            score: 0
+        };
+
+        let currentChallengeIndex = 0;
+        let selectedChoice = null;
+        let selectedMatch = null;
+
+        // 5 Challenges with Varied Interaction Modes
+        const challenges = [
+            {
+                level: 1,
+                title: "Tantangan 1: Mencocokkan Gambar & Rasio",
+                instruction: "Di bawah ini terdapat 3 kelompok buah. Cocokkan kelompok gambar yang memiliki rasio SEDERHANA 2 : 3!",
+                itemA: { name: "A. 4 Apel : 6 Jeruk", icon: "fa-apple-whole", color: "text-red-500", count: 4, item2Icon: "fa-lemon", item2Color: "text-amber-400", count2: 6 },
+                itemB: { name: "B. 6 Apel : 4 Jeruk", icon: "fa-apple-whole", color: "text-red-500", count: 6, item2Icon: "fa-lemon", item2Color: "text-amber-400", count2: 4 },
+                question: "Manakah kartu gambar di atas yang rasionya setara dengan 2 : 3?",
+                type: "matching",
+                matchOptions: [
+                    { id: "A", text: "Kelompok A (4 Apel : 6 Jeruk)" },
+                    { id: "B", text: "Kelompok B (6 Apel : 4 Jeruk)" }
+                ],
+                correctMatch: "A",
+                explanation: "Kelompok A memiliki 4 Apel dan 6 Jeruk. Rasio 4 : 6 jika masing-masing dibagi 2 menjadi 2 : 3 (Tepat!)."
+            },
+            {
+                level: 2,
+                title: "Tantangan 2: Memilih Pernyataan yang Tepat",
+                instruction: "Di dalam laboratorium terdapat 12 Robot Biru dan 16 Robot Hijau.",
+                itemA: { name: "Robot Biru", icon: "fa-robot", color: "text-cyan-400", count: 12 },
+                itemB: { name: "Robot Hijau", icon: "fa-robot", color: "text-emerald-400", count: 16 },
+                question: "Pilihlah PERNYATAAN YANG TEPAT mengenai rasio robot di atas!",
+                type: "choice",
+                choices: [
+                    "Rasio Robot Biru terhadap Robot Hijau adalah 3 : 4",
+                    "Rasio Robot Biru terhadap Robot Hijau adalah 4 : 3",
+                    "Jumlah Robot Hijau lebih sedikit dari Robot Biru",
+                    "Rasio Robot Hijau terhadap SELURUH robot adalah 3 : 7"
+                ],
+                correctChoiceIndex: 0,
+                explanation: "Rasio Robot Biru : Robot Hijau adalah 12 : 16. Keduanya dibagi FPB-nya (4), sehingga (12÷4) : (16÷4) = 3 : 4."
+            },
+            {
+                level: 3,
+                title: "Tantangan 3: Menjawab Pertanyaan (Isi Rasio)",
+                instruction: "Perhatikan hiasan di panggung: terdapat 8 Bintang Emas dan 12 Mahkota Raja.",
+                itemA: { name: "Bintang Emas", icon: "fa-star", color: "text-amber-400", count: 8 },
+                itemB: { name: "Mahkota Raja", icon: "fa-crown", color: "text-purple-400", count: 12 },
+                question: "Tuliskan rasio paling sederhana dari Bintang Emas terhadap Mahkota Raja!",
+                type: "input",
+                correctA: 2,
+                correctB: 3,
+                explanation: "Bintang = 8, Mahkota = 12. Rasio 8 : 12 jika dibagi 4 pada kedua sisi menjadi 2 : 3."
+            },
+            {
+                level: 4,
+                title: "Tantangan 4: Menjawab Pertanyaan (Problem Solving)",
+                instruction: "Rasio Buku Cerita terhadap Buku Sains di perpustakaan adalah 3 : 5. Jika terdapat 15 Buku Cerita, berapakah jumlah Buku Sains?",
+                itemA: { name: "Buku Cerita (Rasio 3)", icon: "fa-book-bookmark", color: "text-blue-400", count: 15 },
+                itemB: { name: "Buku Sains (Rasio 5)", icon: "fa-microscope", color: "text-emerald-400", count: "?" },
+                question: "Hitunglah berapa jumlah Buku Sains yang ada!",
+                type: "choice",
+                choices: [
+                    "20 Buah",
+                    "25 Buah",
+                    "30 Buah",
+                    "15 Buah"
+                ],
+                correctChoiceIndex: 1, // 25 Buah
+                explanation: "Rasio 3 : 5. Nilai 3 mewakili 15 buku (dikali 5). Maka nilai 5 untuk Buku Sains juga dikali 5, yaitu 5 × 5 = 25 Buah."
+            },
+            {
+                level: 5,
+                title: "Tantangan 5: Memilih Pernyataan Bagian terhadap Keseluruhan",
+                instruction: "Dalam satu keranjang terdapat 5 Bola Merah dan 10 Bola Biru (Total = 15 Bola).",
+                itemA: { name: "Bola Merah", icon: "fa-circle", color: "text-rose-500", count: 5 },
+                itemB: { name: "Bola Biru", icon: "fa-circle", color: "text-blue-500", count: 10 },
+                question: "Manakah pernyataan rasio yang BENAR berikut ini?",
+                type: "choice",
+                choices: [
+                    "Rasio Bola Merah terhadap SELURUH bola adalah 1 : 3",
+                    "Rasio Bola Merah terhadap Bola Biru adalah 2 : 1",
+                    "Rasio Bola Biru terhadap SELURUH bola adalah 1 : 2",
+                    "Rasio Bola Biru terhadap Bola Merah adalah 1 : 3"
+                ],
+                correctChoiceIndex: 0,
+                explanation: "Bola Merah = 5, Total Bola = 15. Rasio Bola Merah : Total Bola = 5 : 15 = 1 : 3 (Pernyataan Benar!)."
+            }
+        ];
+
+        /* ===================================================
+           3. GAME CONTROLLER FUNCTIONS
+           =================================================== */
+
+        // Add Member input line
+        function addMemberInput() {
+            const container = document.getElementById('members-container');
+            const count = container.children.length + 1;
+            if (count > 6) return; // limit max 6 members
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'member-input w-full px-4 py-2.5 rounded-xl bg-slate-900/60 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400';
+            input.placeholder = `Anggota ${count}`;
+            container.appendChild(input);
+        }
+
+        // Start Game
+        function startGame(e) {
+            e.preventDefault();
+            initAudio();
+
+            const nameInput = document.getElementById('group-name').value.trim();
+            const memberInputs = document.querySelectorAll('.member-input');
+            const members = [];
+
+            memberInputs.forEach(inp => {
+                if (inp.value.trim() !== "") {
+                    members.push(inp.value.trim());
+                }
+            });
+
+            if (!nameInput || members.length === 0) return;
+
+            groupData.name = nameInput;
+            groupData.members = members;
+            groupData.score = 0;
+
+            // UI Update
+            document.getElementById('display-group-name').innerText = groupData.name;
+            document.getElementById('display-score').innerText = groupData.score;
+            document.getElementById('header-group-info').classList.remove('hidden');
+            document.getElementById('header-group-info').classList.add('flex');
+
+            // Switch Screen
+            document.getElementById('screen-welcome').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('screen-game').classList.add('flex');
+
+            currentChallengeIndex = 0;
+            loadChallenge(currentChallengeIndex);
+        }
+
+        // Render Current Challenge
+        function loadChallenge(index) {
+            const data = challenges[index];
+
+            // Header level & Title
+            document.getElementById('level-badge').innerText = `TANTANGAN ${index + 1} DARI ${challenges.length}`;
+            document.getElementById('level-title').innerText = data.title;
+
+            // Dots indicator
+            for (let i = 0; i < 5; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if (i === index) {
+                    dot.className = "w-3 h-3 rounded-full bg-yellow-400 border border-yellow-200 ring-2 ring-yellow-400/50";
+                } else if (i < index) {
+                    dot.className = "w-3 h-3 rounded-full bg-emerald-400 border border-emerald-200";
+                } else {
+                    dot.className = "w-3 h-3 rounded-full bg-slate-700 border border-slate-500";
+                }
+            }
+
+            // Instruction & Question
+            document.getElementById('challenge-instruction').innerText = data.instruction;
+            document.getElementById('question-text').innerText = data.question;
+
+            // Visual Rendering of Items
+            const visualContainer = document.getElementById('visual-container');
+            visualContainer.innerHTML = '';
+
+            visualContainer.appendChild(createVisualCard(data.itemA));
+            visualContainer.appendChild(createVisualCard(data.itemB));
+
+            // Controls toggle
+            const ratioWrapper = document.getElementById('ratio-input-wrapper');
+            const choiceWrapper = document.getElementById('choice-wrapper');
+            const matchingWrapper = document.getElementById('matching-wrapper');
+            
+            document.getElementById('input-a').value = '';
+            document.getElementById('input-b').value = '';
+            selectedChoice = null;
+            selectedMatch = null;
+
+            ratioWrapper.classList.add('hidden');
+            choiceWrapper.classList.add('hidden');
+            choiceWrapper.classList.remove('grid');
+            matchingWrapper.classList.add('hidden');
+
+            if (data.type === "input") {
+                ratioWrapper.classList.remove('hidden');
+                document.getElementById('label-a').innerText = data.itemA.name;
+                document.getElementById('label-b').innerText = data.itemB.name;
+            } else if (data.type === "matching") {
+                matchingWrapper.classList.remove('hidden');
+                matchingWrapper.innerHTML = '';
+
+                data.matchOptions.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'match-btn w-full p-4 rounded-xl bg-slate-900/90 border-2 border-slate-700 hover:border-yellow-400 text-white font-heading text-base sm:text-lg font-semibold transition-all text-center flex items-center justify-between';
+                    btn.innerHTML = `<span>${opt.text}</span> <i class="fa-solid fa-link text-yellow-400"></i>`;
+                    btn.onclick = () => selectMatch(opt.id, btn);
+                    matchingWrapper.appendChild(btn);
+                });
+            } else if (data.type === "choice") {
+                choiceWrapper.classList.remove('hidden');
+                choiceWrapper.classList.add('grid');
+                choiceWrapper.innerHTML = '';
+
+                data.choices.forEach((choice, idx) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'choice-btn p-4 rounded-xl bg-slate-900/90 border-2 border-slate-700 hover:border-yellow-400 text-white font-heading text-sm sm:text-base font-semibold transition-all text-left flex items-start gap-3';
+                    btn.innerHTML = `<span class="w-6 h-6 rounded-full bg-indigo-900 border border-indigo-400 flex items-center justify-center text-xs text-yellow-300 font-bold flex-shrink-0 mt-0.5">${String.fromCharCode(65 + idx)}</span> <span>${choice}</span>`;
+                    btn.onclick = () => selectChoice(idx, btn);
+                    choiceWrapper.appendChild(btn);
+                });
+            }
+        }
+
+        // Helper to Create Visual Cards
+        function createVisualCard(item) {
+            const card = document.createElement('div');
+            card.className = 'bg-slate-900/60 p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-center min-h-[140px]';
+
+            const title = document.createElement('h4');
+            title.className = 'font-heading font-semibold text-slate-300 text-sm mb-3 text-center';
+            title.innerText = `${item.name} (${item.count})`;
+            card.appendChild(title);
+
+            const grid = document.createElement('div');
+            grid.className = 'flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-w-[260px]';
+
+            if (typeof item.count === 'number') {
+                for (let i = 0; i < item.count; i++) {
+                    const icon = document.createElement('i');
+                    icon.className = `fa-solid ${item.icon} ${item.color} text-2xl sm:text-3xl transition-transform hover:scale-125`;
+                    grid.appendChild(icon);
+                }
+
+                // If dual item in 1 card (for matching)
+                if (item.count2) {
+                    const separator = document.createElement('span');
+                    separator.className = 'text-white font-bold text-lg mx-1';
+                    separator.innerText = '|';
+                    grid.appendChild(separator);
+
+                    for (let j = 0; j < item.count2; j++) {
+                        const icon2 = document.createElement('i');
+                        icon2.className = `fa-solid ${item.item2Icon} ${item.item2Color} text-2xl sm:text-3xl transition-transform hover:scale-125`;
+                        grid.appendChild(icon2);
+                    }
+                }
+            } else {
+                const qMark = document.createElement('span');
+                qMark.className = 'text-4xl font-heading font-bold text-purple-400 animate-bounce';
+                qMark.innerText = '?';
+                grid.appendChild(qMark);
+            }
+
+            card.appendChild(grid);
+            return card;
+        }
+
+        // Matching Selection
+        function selectMatch(id, btnEl) {
+            selectedMatch = id;
+            document.querySelectorAll('.match-btn').forEach(b => {
+                b.classList.remove('border-yellow-400', 'bg-yellow-500/20', 'text-yellow-300');
+                b.classList.add('border-slate-700');
+            });
+            btnEl.classList.remove('border-slate-700');
+            btnEl.classList.add('border-yellow-400', 'bg-yellow-500/20', 'text-yellow-300');
+        }
+
+        // Choice selection handler
+        function selectChoice(idx, buttonEl) {
+            selectedChoice = idx;
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.classList.remove('border-yellow-400', 'bg-yellow-500/20', 'text-yellow-300');
+                btn.classList.add('border-slate-700');
+            });
+            buttonEl.classList.remove('border-slate-700');
+            buttonEl.classList.add('border-yellow-400', 'bg-yellow-500/20', 'text-yellow-300');
+        }
+
+        // Submit Answer Verification
+        function submitAnswer() {
+            const data = challenges[currentChallengeIndex];
+            let isCorrect = false;
+
+            if (data.type === 'input') {
+                const valA = parseInt(document.getElementById('input-a').value);
+                const valB = parseInt(document.getElementById('input-b').value);
+
+                if (isNaN(valA) || isNaN(valB)) {
+                    showModal(false, "Masukkan Jawaban!", "Isi kedua kolom perbandingan terlebih dahulu.", true);
+                    return;
+                }
+
+                if (valA === data.correctA && valB === data.correctB) {
+                    isCorrect = true;
+                }
+            } else if (data.type === 'matching') {
+                if (!selectedMatch) {
+                    showModal(false, "Pilih Pasangan!", "Pilihlah salah satu kelompok gambar yang sesuai.", true);
+                    return;
+                }
+                if (selectedMatch === data.correctMatch) {
+                    isCorrect = true;
+                }
+            } else if (data.type === 'choice') {
+                if (selectedChoice === null) {
+                    showModal(false, "Pilih Jawaban!", "Silakan pilih salah satu opsi pernyataan yang tersedia.", true);
+                    return;
+                }
+                if (selectedChoice === data.correctChoiceIndex) {
+                    isCorrect = true;
+                }
+            }
+
+            if (isCorrect) {
+                groupData.score += 20;
+                document.getElementById('display-score').innerText = groupData.score;
+                playClapSound();
+                createConfetti();
+                showModal(true, "JAWABAN BENAR! 👏🎉", data.explanation);
+            } else {
+                playBoomSound();
+                const card = document.getElementById('challenge-card');
+                card.classList.add('shake-animation');
+                setTimeout(() => card.classList.remove('shake-animation'), 500);
+
+                showModal(false, "BOOM! JAWABAN SALAH 💥", `Ayo diskusikan kembali dengan kelompokmu!\n\n💡 Petunjuk: ${data.explanation}`);
+            }
+        }
+
+        // Custom Modal Control
+        function showModal(isSuccess, title, message, isWarning = false) {
+            const modal = document.getElementById('feedback-modal');
+            const card = document.getElementById('feedback-card');
+            const iconContainer = document.getElementById('feedback-icon-container');
+            const btn = document.getElementById('feedback-btn');
+
+            document.getElementById('feedback-title').innerText = title;
+            document.getElementById('feedback-message').innerText = message;
+
+            if (isSuccess) {
+                card.className = "glass-card-dark max-w-md w-full p-6 sm:p-8 rounded-3xl text-center transform transition-transform duration-300 border-2 border-emerald-500/50 shadow-2xl shadow-emerald-500/20";
+                iconContainer.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-xl bg-emerald-500/20 text-emerald-400 border border-emerald-400/30";
+                iconContainer.innerHTML = '<i class="fa-solid fa-hands-clapping"></i>';
+                btn.className = "btn-bounce w-full py-3.5 rounded-xl font-heading font-bold text-slate-950 text-base shadow-lg bg-gradient-to-r from-emerald-400 to-teal-400";
+                btn.onclick = () => { closeModal(); nextChallenge(); };
+            } else if (isWarning) {
+                card.className = "glass-card-dark max-w-md w-full p-6 sm:p-8 rounded-3xl text-center transform transition-transform duration-300 border-2 border-amber-500/50 shadow-2xl";
+                iconContainer.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-xl bg-amber-500/20 text-amber-400 border border-amber-400/30";
+                iconContainer.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
+                btn.className = "btn-bounce w-full py-3.5 rounded-xl font-heading font-bold text-slate-950 text-base shadow-lg bg-gradient-to-r from-amber-400 to-yellow-400";
+                btn.onclick = () => closeModal();
+            } else {
+                // Boom sound / Wrong answer modal
+                card.className = "glass-card-dark max-w-md w-full p-6 sm:p-8 rounded-3xl text-center transform transition-transform duration-300 border-2 border-rose-500/50 shadow-2xl shadow-rose-500/20";
+                iconContainer.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-xl bg-rose-500/20 text-rose-500 border border-rose-500/30";
+                iconContainer.innerHTML = '<i class="fa-solid fa-bomb"></i>';
+                btn.className = "btn-bounce w-full py-3.5 rounded-xl font-heading font-bold text-white text-base shadow-lg bg-gradient-to-r from-rose-600 to-red-600";
+                btn.onclick = () => closeModal();
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-90');
+                card.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('feedback-modal');
+            const card = document.getElementById('feedback-card');
+            modal.classList.add('opacity-0');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Proceed to next challenge or finish
+        function nextChallenge() {
+            currentChallengeIndex++;
+            if (currentChallengeIndex < challenges.length) {
+                loadChallenge(currentChallengeIndex);
+            } else {
+                finishGame();
+            }
+        }
+
+        // Finish Game & Show Results
+        function finishGame() {
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+            document.getElementById('screen-result').classList.add('flex');
+
+            document.getElementById('final-group-name').innerText = groupData.name;
+            document.getElementById('final-members').innerText = groupData.members.join(', ');
+            document.getElementById('final-score').innerText = `${groupData.score} / 100`;
+
+            playClapSound();
+            createConfetti();
+        }
+
+        // Reset to Start
+        function resetGame() {
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('flex');
+            document.getElementById('header-group-info').classList.add('hidden');
+            document.getElementById('screen-welcome').classList.remove('hidden');
+            document.getElementById('group-name').value = '';
+        }
+
+        // Visual Confetti Generator
+        function createConfetti() {
+            const colors = ['#f59e0b', '#10b981', '#3b82f6', '#ec4899', '#8b5cf6'];
+            for (let i = 0; i < 40; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0px';
+                document.body.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 3500);
+            }
+        }
+    </script>
+</body>
+</html>
